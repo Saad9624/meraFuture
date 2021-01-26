@@ -1,0 +1,47 @@
+import React, { Component } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { WebView } from 'react-native-webview';
+import AsyncStorage from '@react-native-community/async-storage';
+
+// ...
+class MyWebComponent extends Component {
+    state={
+        selectedType:'',
+        subTotal:'',
+        discountCode:'',
+        customerID:'',
+
+    }
+
+   async componentDidMount(){
+    const customerID = await AsyncStorage.getItem("customer_id")
+    this.setState({
+        customerID
+    })
+        if(this.props.route.params){
+            const selectedType = this.props.route.params.selectedType 
+            const subTotal = this.props.route.params.subTotal
+            const discountCode = this.props.route.params.discountCode
+            console.log(selectedType)
+            console.log(subTotal)
+            console.log(discountCode)
+            this.setState({selectedType,subTotal,discountCode})
+        }
+    }
+
+    handleMessage(message) {
+        console.log(message.nativeEvent.data);
+      }
+
+  render() {
+      const {selectedType,subTotal,discountCode,customerID}= this.state  ; 
+    return <WebView
+    onMessage={(event)=> console.log( "On Message", event.nativeEvent.data )}
+    injectedJavaScript="window.postMessage(document)"
+
+    //onMessage={this.handleMessage}
+    source={{ uri: `https://merafuture.pk/api/auth/sendamount?amount=${subTotal}&type=${selectedType}&code=${discountCode}&user_id=${customerID}` }} />;
+  }
+}
+
+export default MyWebComponent ; 
